@@ -19,5 +19,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install Mocha
+        run: npm install mocha
+
       - name: Run Mocha
         run: npm run test --prefix src/azure-sa
