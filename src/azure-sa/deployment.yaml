@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: filevault-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: filevault
+  template:
+    metadata:
+      labels:
+        app: filevault
+    spec:
+      containers:
+      - name: filevault-container
+        image: filevaultregistry.azurecr.io/filevault-web:v1
+        ports:
+        - containerPort: 3000
+          name: web
+        env:        
+        - name: PORT
+          value: "3000"
+        - name: AZURE_STORAGE_ACCOUNT_NAME
+          value: "todo" # Will use token and add to pipeline later
+        - name: AZURE_STORAGE_ACCOUNT_KEY
+          value: "todo" # Will use token and add to pipeline later
+        - name: AZURE_CONTAINER_NAME
+          value: "todo" # Will use token and add to pipeline later
+        resources:
+          requests:
+            cpu: 10m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
