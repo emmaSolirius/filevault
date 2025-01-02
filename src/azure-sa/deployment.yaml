@@ -22,11 +22,11 @@ spec:
         - name: PORT
           value: "3000"
         - name: AZURE_STORAGE_ACCOUNT_NAME
-          value: "todo"
+          value: "todo" # Will use token and add to pipeline later
         - name: AZURE_STORAGE_ACCOUNT_KEY
-          value: "todo"
+          value: "todo" # Will use token and add to pipeline later
         - name: AZURE_CONTAINER_NAME
-          value: "todo"
+          value: "todo" # Will use token and add to pipeline later
         resources:
           requests:
             cpu: 10m
