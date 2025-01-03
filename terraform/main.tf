@@ -6,6 +6,14 @@ terraform {
       version = "~> 4.14.0"
     }
   }
+
+  cloud {
+    organization = "filevault"
+
+    workspaces {
+      name = "filevault"
+    }
+  }
 }
 
 provider "azurerm" {
