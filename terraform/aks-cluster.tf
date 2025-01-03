@@ -1,17 +1,3 @@
-provider "azurerm" {
-  features {}
-
-  client_id       = var.client_id
-  client_secret   = var.client_secret
-  tenant_id       = var.tenant_id
-  subscription_id = var.subscription_id
-}
-
-resource "azurerm_resource_group" "rg" {
-  name     = "${var.base_name}-rg"
-  location = var.location
-}
-
 resource "azurerm_kubernetes_cluster" "default" {
   name                = "${var.base_name}-aks"
   location            = azurerm_resource_group.rg.location
@@ -24,6 +10,7 @@ resource "azurerm_kubernetes_cluster" "default" {
     node_count      = 2
     vm_size         = "Standard_D2s_v3"
     os_disk_size_gb = 128
+    # zones = "None"    
   }
 
   service_principal {
@@ -32,6 +19,8 @@ resource "azurerm_kubernetes_cluster" "default" {
   }
 
   role_based_access_control_enabled = true
+  sku_tier                          = "Free"
+
 
   tags = {
     Environment = "Development"
