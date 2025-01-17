@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: filevault-container
-        image: filevaultregistry.azurecr.io/filevault-web:v1
+        image: filevaultacr.azurecr.io/filevault:v1
         ports:
         - containerPort: 3000
           name: web
