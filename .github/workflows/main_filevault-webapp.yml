@@ -31,7 +31,8 @@ jobs:
       with:
         push: true
         tags: filevaultacr.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_46abcba7c2db48fb88fac9c831dae229 }}/filevault:${{ github.sha }}
-        file: ./src/azure-sa/Dockerfile
+        context: ./src/azure-sa
+        file: ./Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
