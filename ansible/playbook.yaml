@@ -1,0 +1,95 @@
+---
+- hosts: testvms
+  become: true
+  vars:
+    container_count: 4
+    default_container_name: filevault-container
+    default_container_image: ubuntu
+    default_container_command: sleep 1d
+
+  tasks:
+  # Install requirements and docker
+    # ansible prefers aptitude rather than apt so am installing it
+    - name: Install aptitude
+      ansible.builtin.apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+
+    - name: Install required system packages
+      ansible.builtin.apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          # below are for docker-compose
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+
+    - name: Add the Docker repository to APT sources
+      block:
+        - name: Get apt key
+          ansible.builtin.get_url:
+            url: https://download.docker.com/linux/ubuntu/gpg
+            dest: /etc/apt/keyrings/filevault.asc
+        
+        - name: Add Docker repository to APT source
+          ansible.builtin.apt_repository:
+            repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/filevault.asc] https://download.docker.com/linux/{{default_container_image}} {{ ansible_distribution_release }} stable"
+            state: present
+
+    - name: Update existing list of packages
+      ansible.builtin.apt:
+        upgrade: yes
+        update_cache: yes
+        cache_valid_time: 86400
+
+    - name: Update apt and install docker-ce
+      ansible.builtin.apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+
+    - name: Install Docker Module for Python
+      pip:
+        name: docker
+  
+  # Adding docker image and container
+    - name: Pull docker image
+      community.docker.docker_image:
+        name: "{{ default_container_image }}"
+        source: pull
+
+    - name: Create and run containers
+      community.docker.docker_container:
+        name: "{{ default_container_name }}{{ item }}"
+        image: "{{ default_container_image }}"
+        command: "{{ default_container_command }}"
+        state: started
+      loop: "{{ range(1, container_count + 1)|list }}"
+
+    - name: Show output # If I have more time I will figure out why the result object is printed to console intstead of just the properties I want and use below
+      block:        
+        - name: Get info
+          docker_container_info:
+            name: "{{ default_container_name }}{{ item }}"
+          register: result
+          loop: "{{ range(1, container_count + 1)|list }}"
+        
+        - name: Does container exist?
+          debug:
+            msg: "The container {{'exists' if item.exists else 'does not exist'}}"
+          loop: "{{ result.results }}"
+
+        - name: Print info about container
+          debug:
+            var: item.container
+          when: item.exists
+          loop: "{{ result.results }}"
+
+
+    
