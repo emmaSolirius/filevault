@@ -72,7 +72,7 @@
         state: started
       loop: "{{ range(1, container_count + 1)|list }}"
 
-    - name: Show output # TODO: make this print less things to console
+    - name: Show output # If I have more time I will figure out why the result object is printed to console intstead of just the properties I want and use below
       block:        
         - name: Get info
           docker_container_info:
