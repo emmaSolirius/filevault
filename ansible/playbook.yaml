@@ -50,7 +50,7 @@
 
     - name: Update apt and install docker-ce
       ansible.builtin.apt:
-        name: docker-ce # fails here saying: fatal: [172.176.223.197]: FAILED! => {"changed": false, "msg": "No package matching 'docker-ce' is available"}
+        name: docker-ce
         state: latest
         update_cache: true
 
@@ -64,15 +64,15 @@
         name: "{{ default_container_image }}"
         source: pull
 
-    - name: Create containers
+    - name: Create and run containers
       community.docker.docker_container:
         name: "{{ default_container_name }}{{ item }}"
         image: "{{ default_container_image }}"
         command: "{{ default_container_command }}"
-        state: present
+        state: started
       loop: "{{ range(1, container_count + 1)|list }}"
 
-    - name: Show output
+    - name: Show output # TODO: make this print less things to console
       block:        
         - name: Get info
           docker_container_info:
