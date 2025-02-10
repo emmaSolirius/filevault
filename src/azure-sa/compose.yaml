@@ -35,6 +35,24 @@ services:
       - 9100
     networks:
       - monitoring
+    depends_on:
+      - web
+
+# This doesn't seem to log anything except for 5 basic metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    expose:
+      - 8080
+    # ports:
+    #   - 8080:8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    depends_on:
+      - web
 
   prometheus:
     image: prom/prometheus:latest
@@ -53,3 +71,6 @@ services:
       - 9090
     networks:
       - monitoring
+    depends_on:
+      - cadvisor
+      - node-exporter
