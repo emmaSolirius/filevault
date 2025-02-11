@@ -1,25 +1,23 @@
 filebeat.inputs:
+# - type: log
+#   enabled: true
+#   paths:
+#     - /var/lib/docker/containers/*/*.log
+#     - /usr/share/filebeat/ingest_data/nginx/access.json
+#     - /usr/share/filebeat/ingest_data/nginx/error.log
+#   json.keys_under_root: true
+#   json.add_error_key: true
 - type: filestream
   id: default-filestream
   paths:
-    - ingest_data/*.log
-
-filebeat.autodiscover:
-  providers:
-    - type: docker
-      hints.enabled: true
+    - /usr/share/filebeat/ingest_data/nginx/*
+    # - /usr/share/filebeat/ingest_data/nginx/access.json
+    # - ingest_data/nginx/access.json
+    # - ingest_data/*.log
 
 processors:
-- add_docker_metadata: ~
+  - add_docker_metadata:
+      host: "unix:///var/run/docker.sock"
 
-setup.kibana:
-  host: ${KIBANA_HOSTS}
-  username: ${ELASTIC_USER}
-  password: ${ELASTIC_PASSWORD} 
-
-output.elasticsearch:
-  hosts: ${ELASTIC_HOSTS}
-  username: ${ELASTIC_USER}
-  password: ${ELASTIC_PASSWORD}
-  ssl.enabled: true
-  ssl.certificate_authorities: "certs/ca/ca.crt"
+output.logstash:
+  hosts: ${LOGSTASH_HOSTS}
