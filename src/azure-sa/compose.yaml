@@ -3,9 +3,14 @@ name: filevault
 networks:
   monitoring:
     driver: bridge
+  elk:
+    driver: bridge
 
 volumes:
   prometheus_data: {}
+  elk_data:
+  ls_data:
+  kb_data:
 
 services:
   web:
@@ -17,6 +22,10 @@ services:
         required: true
       - path: ".env.development"
         required: false
+    networks:
+      - elk
+    depends_on:
+      - logstash
   
   node-exporter:
     image: prom/node-exporter:latest
@@ -74,3 +83,97 @@ services:
     depends_on:
       - cadvisor
       - node-exporter
+
+  elasticsearch:
+      image: 'docker.elastic.co/elasticsearch/elasticsearch:7.14.0'
+      container_name: elasticsearch
+      volumes:
+        - elk_data:/usr/share/elasticsearch/data/
+        - ./elk-config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      environment:
+        - discovery.type=single-node
+        - http.host=0.0.0.0
+        - transport.host=0.0.0.0
+        - xpack.security.enabled=false
+        - xpack.monitoring.enabled=false
+        - cluster.name=elasticsearch
+        - bootstrap.memory_lock=true
+      ports:
+        - '9200:9200'
+        - "9300:9300"
+      networks:
+        - elk
+      healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s"]
+        interval: 30s
+        timeout: 10s
+        retries: 3
+
+  kibana:
+    image: 'docker.elastic.co/kibana/kibana:7.14.0'
+    container_name: kibana
+    labels:
+      co.elastic.logs/module: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    volumes:
+      - ./elk-config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+      - kb_data:/usr/share/kibana/data
+    ports:
+      - '5601:5601'
+    networks:
+      - elk
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5601/app/home"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.14.0
+    container_name: logstash
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    volumes:
+      - ./elk-config/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./elk-config/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ls_data:/usr/share/logstash/data
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - elk
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9600/_cluster/health?wait_for_status=yellow&timeout=5s"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.14.0
+    container_name: filebeat
+    user: root
+    command: ["filebeat", "-e", "--strict.perms=false"]
+    volumes:
+      - ./elk-config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log/syslog:/var/log/syslog:ro
+      - /var/log/auth.log:/var/log/auth.log:ro
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+    networks:
+      - elk
+    environment:
+      - ELASTIC_HOSTS=https://elasticsearch:9200
+      - KIBANA_HOSTS=http://kibana:5601
+      - LOGSTASH_HOSTS=http://logstash:9600
