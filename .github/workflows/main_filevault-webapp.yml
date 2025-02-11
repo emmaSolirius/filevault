@@ -31,11 +31,11 @@ jobs:
 
     - name: Create .env file
       run: |
-        touch .env
-        echo AZURE_STORAGE_ACCOUNT_NAME=${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }} >> .env
-        echo AZURE_STORAGE_ACCOUNT_KEY=${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} >> .env
-        echo AZURE_CONTAINER_NAME=${{ secrets.AZURE_CONTAINER_NAME }} >> .env
-        echo PORT=${{ secrets.PORT }} >> .env
+        touch ./src/azure-sa/.env
+        echo AZURE_STORAGE_ACCOUNT_NAME=${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }} >> ./src/azure-sa/.env
+        echo AZURE_STORAGE_ACCOUNT_KEY=${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} >> ./src/azure-sa/.env
+        echo AZURE_CONTAINER_NAME=${{ secrets.AZURE_CONTAINER_NAME }} >> ./src/azure-sa/.env
+        echo PORT=${{ secrets.PORT }} >> ./src/azure-sa/.env
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
