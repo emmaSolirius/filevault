@@ -14,12 +14,13 @@ scrape_configs:
       - targets: ['node-exporter:9100']
     scrape_interval: 5s
 
-# Not sure this is meant to be here as nothing configured?
+# Need to configure metrics for Prometheus to scrape
   - job_name: 'filevault'
     static_configs:
       - targets: ['localhost:3000']
     scrape_interval: 5s
 
+# Not working quite right
   - job_name: cadvisor
     static_configs:
       - targets: ['cadvisor:8080']
@@ -28,7 +29,7 @@ scrape_configs:
       
 
 remote_write:
-  - url: '__PrometheusUrl__'
+  - url: "${PROMETHEUS_URL}"
     basic_auth:
-      username: '__PrometheusUsername__'
-      password: '__PrometheusPassword__'
+      username: "${PROMETHEUS_USERNAME}"
+      password: "${PROMETHEUS_PASSWORD}"
