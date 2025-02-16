@@ -3,7 +3,6 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
-const logger = require('./logger');
 
 const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob');
 
@@ -45,7 +44,6 @@ app.use(express.json());
 
 app.post('/upload', upload.single('file'), async (req, res) => {
     const fileName = req.body.note;
-    logger.info('Handling GET request to /upload');
 
     if (!fileName) {
         return res.status(400).send('File name is required.');
