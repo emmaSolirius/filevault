@@ -44,6 +44,7 @@ app.use(express.json());
 
 app.post('/upload', upload.single('file'), async (req, res) => {
     const fileName = req.body.note;
+
     if (!fileName) {
         return res.status(400).send('File name is required.');
     }
