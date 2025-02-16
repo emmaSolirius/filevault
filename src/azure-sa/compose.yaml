@@ -4,6 +4,7 @@ networks:
   monitoring:
     driver: bridge
   elastic:
+    driver: bridge
     external: false
 
 volumes:
@@ -29,8 +30,6 @@ services:
     env_file:
       - path: ".env"
         required: true
-      - path: ".env.development"
-        required: false
     networks:
       - elastic
     depends_on:
@@ -78,8 +77,6 @@ services:
     env_file:
       - path: ".env"
         required: true
-      - path: ".env.development"
-        required: false
 
 # This doesn't seem to log anything except for 5 basic metrics
   cadvisor:
@@ -99,8 +96,6 @@ services:
     env_file:
       - path: ".env"
         required: true
-      - path: ".env.development"
-        required: false
 
   prometheus:
     image: prom/prometheus:latest
@@ -125,8 +120,6 @@ services:
     env_file:
       - path: ".env"
         required: true
-      - path: ".env.development"
-        required: false
 
   setup:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
@@ -180,8 +173,6 @@ services:
     env_file:
       - path: ".env"
         required: true
-      - path: ".env.development"
-        required: false
     healthcheck:
       test: ["CMD-SHELL", "[ -f config/certs/es01/es01.crt ]"]
       interval: 1s
@@ -203,8 +194,6 @@ services:
     env_file:
       - path: ".env"
         required: true
-      - path: ".env.development"
-        required: false
     environment:
       - node.name=es01
       - cluster.name=${CLUSTER_NAME}
@@ -252,8 +241,6 @@ services:
     env_file:
       - path: ".env"
         required: true
-      - path: ".env.development"
-        required: false
     environment:
       - SERVERNAME=kibana
       - ELASTICSEARCH_HOSTS=https://es01:9200
@@ -293,8 +280,6 @@ services:
     env_file:
       - path: ".env"
         required: true
-      - path: ".env.development"
-        required: false
     environment:
       - ELASTIC_USER=elastic
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
@@ -318,20 +303,20 @@ services:
       - "/var/lib/docker/containers:/var/lib/docker/containers:ro"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./nginx/logs/:/usr/share/filebeat/ingest_data/nginx/"
-      - "./nginx/logs/access.json:/usr/share/filebeat/ingest_data/nginx/access.json"
-      - "./nginx/logs/error.log:/usr/share/filebeat/ingest_data/nginx/error.log"
-
+    logging: # needed?
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     env_file:
       - path: ".env"
         required: true
-      - path: ".env.development"
-        required: false
     environment:
       - ELASTIC_USER=elastic
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - ELASTIC_HOSTS=https://es01:9200
       - KIBANA_HOSTS=http://kibana:5601
-      - LOGSTASH_HOSTS=http://logstash01:9600
+      - LOGSTASH_HOSTS=http://logstash01:5044
     command:
       - --strict.perms=false
 
@@ -353,8 +338,6 @@ services:
     env_file:
       - path: ".env"
         required: true
-      - path: ".env.development"
-        required: false
     environment:
       - xpack.monitoring.enabled=false
       - ELASTIC_USER=elastic
