@@ -8,10 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Scan the web application
     steps:
-      - name: Baseline ZAP Scan
-        uses: zaproxy/action-baseline@v0.14.0
-        with:
-          target: 'https://filevault-webapp-fhh5e4fje0avcwhq.westus2-01.azurewebsites.net'
+      # - name: Baseline ZAP Scan
+      #   uses: zaproxy/action-baseline@v0.14.0
+      #   with:
+      #     target: 'https://filevault-webapp-fhh5e4fje0avcwhq.westus2-01.azurewebsites.net'
 
       - name: Full ZAP Scan
         uses: zaproxy/action-full-scan@v0.12.0
