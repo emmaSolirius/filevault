@@ -1,0 +1,26 @@
+name: Deployment pipeline
+
+on:
+    push:
+        branches: [ "main" ]
+    workflow_dispatch:
+
+jobs:
+    # Pre-deployment
+    linting:
+        uses: ./.github/workflows/linting.yml
+    sonarcloud:
+        uses: ./.github/workflows/sonarcloud.yml
+    tests:
+        uses: ./.github/workflows/tests.yml
+    
+    # Deployment
+    build-and-deploy:
+        uses: ./.github/workflows/main_filevault-webapp.yml
+        needs: [linting, sonarcloud, tests]
+    
+    # Post-deployment
+    owasp-zap-testing:
+        uses: ./.github/workflows/zap.yml
+        needs: [build-and-deploy]
+
