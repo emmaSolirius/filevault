@@ -2,7 +2,7 @@ name: Deployment pipeline
 
 on:
     push:
-        branches: [ "main", "deployment-pipeline" ]
+        branches: [ "main" ]
     workflow_dispatch:
 
 jobs:
