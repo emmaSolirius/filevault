@@ -16,4 +16,4 @@ jobs:
       - name: Full ZAP Scan
         uses: zaproxy/action-full-scan@v0.12.0
         with:
-          target: 'https://www.zaproxy.org/'
+          target: 'https://filevault-webapp-fhh5e4fje0avcwhq.westus2-01.azurewebsites.net'
