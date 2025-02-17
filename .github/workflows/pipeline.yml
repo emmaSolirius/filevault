@@ -1,0 +1,30 @@
+name: Deployment pipeline
+
+on:
+    push:
+        branches: [ "main" ]
+    workflow_dispatch:
+
+jobs:
+    # Pre-deployment
+    linting:
+        uses: ./.github/workflows/linting.yml
+        secrets: inherit
+    sonarcloud:
+        uses: ./.github/workflows/sonarcloud.yml
+        secrets: inherit
+    tests:
+        uses: ./.github/workflows/tests.yml
+        secrets: inherit
+    
+    # Deployment
+    build-and-deploy:
+        uses: ./.github/workflows/main_filevault-webapp.yml
+        needs: [linting, sonarcloud, tests]
+        secrets: inherit
+    
+    # Post-deployment
+    owasp-zap-testing:
+        uses: ./.github/workflows/zap.yml
+        needs: [build-and-deploy]
+        secrets: inherit
