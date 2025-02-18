@@ -4,28 +4,15 @@ global:
 
 
 scrape_configs:
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['localhost:9090']
-    scrape_interval: 5s
-
   - job_name: 'node'
     static_configs:
       - targets: ['node-exporter:9100']
     scrape_interval: 5s
 
-# Need to configure metrics for Prometheus to scrape
   - job_name: 'filevault'
     static_configs:
-      - targets: ['localhost:3000']
+      - targets: ['web:3000']
     scrape_interval: 5s
-
-# Not working quite right
-  - job_name: cadvisor
-    static_configs:
-      - targets: ['cadvisor:8080']
-    scrape_interval: 5s
-
       
 
 remote_write:
