@@ -29,7 +29,7 @@ services:
       - "3000:3000"
     env_file:
       - path: ".env"
-        required: true
+        required: false
     networks:
       - elastic
     depends_on:
@@ -76,7 +76,7 @@ services:
       - web
     env_file:
       - path: ".env"
-        required: true
+        required: false
 
 # This doesn't seem to log anything except for 5 basic metrics
   cadvisor:
@@ -95,7 +95,7 @@ services:
       - web
     env_file:
       - path: ".env"
-        required: true
+        required: false
 
   prometheus:
     image: prom/prometheus:latest
@@ -106,7 +106,7 @@ services:
       - prometheus_data:/prometheus
     env_file:
       - path: ".env"
-        required: true
+        required: false
     environment: # this doesn't work?
       - PROMETHEUS_URL=${PROMETHEUS_URL}
       - PROMETHEUS_USERNAME=${PROMETHEUS_USERNAME}
@@ -176,7 +176,7 @@ services:
       '
     env_file:
       - path: ".env"
-        required: true
+        required: false
     healthcheck:
       test: ["CMD-SHELL", "[ -f config/certs/es01/es01.crt ]"]
       interval: 1s
@@ -197,7 +197,7 @@ services:
       - ${ES_PORT}:9200
     env_file:
       - path: ".env"
-        required: true
+        required: false
     environment:
       - node.name=es01
       - cluster.name=${CLUSTER_NAME}
@@ -244,7 +244,7 @@ services:
       - ${KIBANA_PORT}:5601
     env_file:
       - path: ".env"
-        required: true
+        required: false
     environment:
       - SERVERNAME=kibana
       - ELASTICSEARCH_HOSTS=https://es01:9200
@@ -283,7 +283,7 @@ services:
       - "/:/hostfs:ro"
     env_file:
       - path: ".env"
-        required: true
+        required: false
     environment:
       - ELASTIC_USER=elastic
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
@@ -314,7 +314,7 @@ services:
         max-file: "3"
     env_file:
       - path: ".env"
-        required: true
+        required: false
     environment:
       - ELASTIC_USER=elastic
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
@@ -340,7 +340,7 @@ services:
       - "./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
     env_file:
       - path: ".env"
-        required: true
+        required: false
     environment:
       - xpack.monitoring.enabled=false
       - ELASTIC_USER=elastic
