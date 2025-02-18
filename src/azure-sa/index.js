@@ -3,11 +3,36 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
+const client = require('prom-client');
 
 const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Create a Registry which registers the metrics
+const register = new client.Registry();
+
+// Add default metrics to the registry
+client.collectDefaultMetrics({ register });
+
+const requestCounter = new client.Counter({
+    name: 'http_requests_total',
+    help: 'Total number of HTTP requests',
+    labelNames: ['method', 'endpoint']
+  });
+
+// Increment the counter on each request
+app.use((req, res, next) => {
+    requestCounter.inc({ method: req.method, endpoint: req.url });
+    next();
+  });
+
+// Expose /metrics endpoint for Prometheus
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+  });
 
 const upload = multer({ dest: 'uploads/' });
 
